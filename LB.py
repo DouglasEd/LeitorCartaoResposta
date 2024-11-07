@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 import math
 
 def CalcAng(Bordas):
@@ -11,19 +12,21 @@ def CalcAng(Bordas):
     Grau = math.degrees(Rad)
     print(Grau)
     return Grau
-def rotate(img,x,y,angle, rotPoint=None):
+def rotate(img,Canto,angle, rotPoint=None):
     (height,width) = img.shape[:2]
-
+    x, y, h, w = cv2.boundingRect(Canto)
     if rotPoint == None:
         rotPoint = (width//2, height//2)
     x0,y0=rotPoint
-    print(f'x={x} y={y} x0={x0} y0 = {y0}')
-    xn=x0+(x-x0)*math.cos(abs(angle)) - (y-y0) * math.sin(abs(angle))
-    yn=y0+(x-x0)*math.sin(abs(angle)) + (y-y0) * math.cos(abs(angle))
+
+    xn=x0+(x-x0)*math.cos(math.radians(angle)) + (y-y0) * math.sin(math.radians(angle))
+    yn=y0+(x-x0)*math.sin(math.radians(angle)) + (y-y0) * math.cos(math.radians(angle))
+    print(f'x0={x0} y0 = {y0} x={x} y={y} xn = {xn} yn = {yn} ang={math.radians(angle)}')
+
     rotMat = cv2.getRotationMatrix2D(rotPoint, angle, 1.0)
     dim = (width,height)
 
-    return (cv2.warpAffine(img, rotMat, dim), int(xn), int(yn))
+    return cv2.warpAffine(img, rotMat, dim), int(xn), int(yn)
 
 def CortarGabarito(img_path):
     # Carregar a imagem e converter para tons de cinza
@@ -75,17 +78,15 @@ def CortarGabarito(img_path):
     print(Cantos)
     print(f'{min_x}, {min_y} , {max_x}, {max_y}')
 
-    cv2.rectangle(img,(min_x,min_y),(min_x+10,min_y+10),(255,0,0), thickness=2)
-    cv2.rectangle(img,(min_x,max_y),(min_x+10,max_y+10),(255,0,0), thickness=2)
-    cv2.rectangle(img,(max_x,min_y),(max_x+10,min_y+10),(255,0,0), thickness=2)
-    cv2.rectangle(img,(max_x,max_y),(max_x+10,max_y+10),(255,0,0), thickness=2)
-    
     Ang=CalcAng(Cantos)*-1
-    img,min_x,min_y=rotate(img,min_x,min_y,Ang)
+    img,min_x,min_y=rotate(img,Cantos[1],Ang)
     print(f'{min_x}, {min_y}')
-    if min_x < max_x and min_y < max_y:
-        img = img[min_y+55:min_y+520,min_x:min_x+560]
+
+    cv2.rectangle(img,(min_x,min_y),(min_x+10,min_y+10),(255,0,0), thickness=2)
+
+    '''if min_x < max_x and min_y < max_y:
+        img = img[min_y+20:min_y+480,min_x+20:min_x+580]'''
     return img
 def ShowImg(img, Name='imagem'):
-    cv2.imshow(Name,img)
-    cv2.waitKey(0)
+    plt.imshow(img)
+    plt.show()
