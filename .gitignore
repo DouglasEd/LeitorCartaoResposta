@@ -1,0 +1,61 @@
+# Diretórios de ambientes virtuais
+venv/
+.env/
+.venv/
+
+# Arquivos compilados pelo Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Configurações e caches do ambiente de desenvolvimento
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos de logs e dumps
+*.log
+*.pot
+*.out
+*.err
+
+# Configurações específicas do sistema operacional
+.DS_Store      # macOS
+Thumbs.db      # Windows
+
+# Dependências e pacotes instalados
+*.egg-info/
+*.egg
+.eggs/
+*.whl
+pip-wheel-metadata/
+build/
+dist/
+
+# Arquivos temporários criados por testes
+.tox/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Notebooks Jupyter
+.ipynb_checkpoints
+
+# Arquivos de configuração de credenciais e variáveis de ambiente
+.env
+.env.* 
+*.env
+
+# Arquivos de cache de bibliotecas
+.mypy_cache/
+.pyre/
+.pytype/
+.dmypy.json
+.pyre/
+
+# Caches de ferramentas de análise estática e formatação de código
+.pyright/
+ruff_cache/
+__pypackages__/

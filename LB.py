@@ -12,29 +12,47 @@ def CalcAng(Bordas):
     Grau = math.degrees(Rad)
     print(Grau)
     return Grau
-def rotate(img,Canto,angle, rotPoint=None):
-    (height,width) = img.shape[:2]
-    x, y, h, w = cv2.boundingRect(Canto)
-    if rotPoint == None:
-        rotPoint = (width//2, height//2)
-    x0,y0=rotPoint
-
-    xn=x0+(x-x0)*math.cos(math.radians(angle)) + (y-y0) * math.sin(math.radians(angle))
-    yn=y0+(x-x0)*math.sin(math.radians(angle)) + (y-y0) * math.cos(math.radians(angle))
-    print(f'x0={x0} y0 = {y0} x={x} y={y} xn = {xn} yn = {yn} ang={math.radians(angle)}')
-
+def rotate(img, Canto, angle, rotPoint=None):
+    (height, width) = img.shape[:2]
+    
+    # Se o ponto de rotação não for especificado, usar o centro da imagem
+    if rotPoint is None:
+        rotPoint = (width // 2, height // 2)
+    
+    # Obter a matriz de rotação
     rotMat = cv2.getRotationMatrix2D(rotPoint, angle, 1.0)
-    dim = (width,height)
+    
+    # Calcular o novo tamanho da imagem após a rotação para evitar corte
+    cos = abs(rotMat[0, 0])
+    sin = abs(rotMat[0, 1])
 
-    return cv2.warpAffine(img, rotMat, dim), int(xn), int(yn)
+    new_width = int(height * sin + width * cos)
+    new_height = int(height * cos + width * sin)
+
+    # Ajustar a matriz de rotação para que a imagem inteira caiba no novo espaço
+    rotMat[0, 2] += (new_width - width) // 2
+    rotMat[1, 2] += (new_height - height) // 2
+
+    # Realizar a rotação com o novo tamanho
+    rotated_img = cv2.warpAffine(img, rotMat, (new_width, new_height))
+
+    # Calcular as novas coordenadas do ponto (min_x, min_y) aplicando a matriz de rotação
+    x, y, w, h = cv2.boundingRect(Canto)
+    new_min_x, new_min_y = cv2.transform(np.array([[[x, y]]]), rotMat)[0][0]
+
+    # Retornar a imagem rotacionada e as novas coordenadas
+    return rotated_img, int(new_min_x), int(new_min_y)
+
 
 def CortarGabarito(img_path):
     # Carregar a imagem e converter para tons de cinza
     img = cv2.imread(img_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
     # Aplicar filtro de limiarização
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     Cantos=[None,None]
+
     # Encontrar contornos e filtrar por tamanho
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     min_area, max_area = 50, 200
@@ -84,8 +102,8 @@ def CortarGabarito(img_path):
 
     cv2.rectangle(img,(min_x,min_y),(min_x+10,min_y+10),(255,0,0), thickness=2)
 
-    '''if min_x < max_x and min_y < max_y:
-        img = img[min_y+20:min_y+480,min_x+20:min_x+580]'''
+    if min_x < max_x and min_y < max_y:
+        img = img[min_y+20:min_y+480,min_x+20:min_x+580]
     return img
 def ShowImg(img, Name='imagem'):
     plt.imshow(img)
