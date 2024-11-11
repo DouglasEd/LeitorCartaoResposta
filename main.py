@@ -5,5 +5,6 @@ img_path = 'Imagens/cartao3-torto.jpg'
 #cartao2-falha.jpg
 #cartao3-torto.jpg
 
-img = LB.CortarGabarito(img_path)
+img , Respostas = LB.CortarGabarito(img_path)
+print(Respostas)
 LB.ShowImg(img)
