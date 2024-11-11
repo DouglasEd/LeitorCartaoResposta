@@ -47,11 +47,11 @@ def CortarGabarito(img_path):
     # Carregar a imagem e converter para tons de cinza
     img = cv2.imread(img_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    Respostas=[None,None,None,None,None,None,None,None,None,None,
-               None,None,None,None,None,None,None,None,None,None,
-               None,None,None,None,None,None,None,None,None,None,
-               None,None,None,None,None,None,None,None,None,None,
-               None,None,None,None,None,None,None,None,None,None]
+    Respostas={1:None,2:None,3:None,4:None,5:None,6:None,7:None,8:None,9:None,10:None,
+               11:None,12:None,13:None,14:None,15:None,16:None,17:None,18:None,19:None,20:None,
+               21:None,22:None,23:None,24:None,25:None,26:None,27:None,28:None,29:None,30:None,
+               31:None,32:None,33:None,34:None,35:None,36:None,37:None,38:None,39:None,40:None,
+               41:None,42:None,43:None,44:None,45:None,46:None,47:None,48:None,49:None,50:None,}
     Alts=['A','B','C','D','E']
     # Aplicar filtro de limiarização
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
@@ -127,7 +127,7 @@ def CortarGabarito(img_path):
             alt=int((y-(tamy*(math.floor(y/tamy))))/((tamy-30)/5))
 
             cv2.putText(img,f'{Alts[alt-1]}',(x,y-5),cv2.FONT_HERSHEY_COMPLEX,.5,(255,0,0),thickness=1)
-            Respostas[quest-1]=Alts[alt-1]
+            Respostas[quest]=Alts[alt-1]
             #Formular para descobrir a questão 1+(math.floor(x/tamx))+(math.floor(y/tamy)*15)
     '''x1,y1=(img.shape[1],img.shape[0])
     print(f'{x1} {y1}')
@@ -139,3 +139,14 @@ def CortarGabarito(img_path):
 def ShowImg(img, Name='imagem'):
     plt.imshow(img)
     plt.show()
+
+def CompararRespostas(Respostas):
+    acertos=0
+    gabarito = {
+1: 'B', 2: 'A', 3: 'D', 4: 'A', 5: 'E', 6: 'B', 7: 'C', 8: 'D', 9: 'A', 10: 'B',11: 'A', 12: 'C', 13: 'C', 14: 'E', 15: 'D',16: 'B', 17: 'E', 18: 'C', 19: 'A', 20: 'E', 21: 'D', 22: 'E', 23: 'E', 24: 'A', 25: 'C', 26: 'C', 27: 'D', 28: 'B', 29: 'D', 30: 'D', 31: 'A', 32: 'D', 33: 'D', 34: 'B', 35: 'C', 36: 'D', 37: 'B', 38: 'D', 39: 'D', 40: 'D', 41: 'D', 42: 'E', 43: 'C', 44: 'A', 45: 'D', 46: 'B', 47: 'C', 48: 'A', 49: 'D', 50: 'E' 
+}
+    for i in range(1,16):
+        if Respostas[i] == gabarito[i]:
+            acertos+=1
+
+    return acertos
