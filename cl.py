@@ -28,25 +28,32 @@ def calcularAngulo(Bordas):
 def rotacionarImagem(img, canto, angulo, ponto_de_rotacao=None):
     (altura, largura) = img.shape[:2]
     
+    # Se o ponto de rotação não for especificado, usar o centro da imagem
     if ponto_de_rotacao is None:
         ponto_de_rotacao = (largura // 2, altura // 2)
 
+    # Obter a matriz de rotação
     matriz_de_rotacao = cv2.getRotationMatrix2D(ponto_de_rotacao, angulo, 1.0)
     
+    # Calcular o novo tamanho da imagem após a rotação para evitar corte
     cos = abs(matriz_de_rotacao[0, 0])
     sen = abs(matriz_de_rotacao[0, 1])
 
     nova_largura = int(altura * sen + largura * cos)
     nova_altura = int(altura * cos + largura * sen)
 
+    # Ajustar a matriz de rotação para que a imagem inteira caiba no novo espaço
     matriz_de_rotacao[0, 2] += (nova_largura - largura) // 2
     matriz_de_rotacao[1, 2] += (nova_altura - altura) // 2
 
+    # Realizar a rotação com o novo tamanho
     imagem_rotacionada = cv2.warpAffine(img, matriz_de_rotacao, (nova_largura, nova_altura))
 
+    # Calcular as novas coordenadas do ponto (min_x, min_y) aplicando a matriz de rotação
     min_x, min_y, w, h = cv2.boundingRect(canto)
     novo_min_x, novo_min_y = cv2.transform(np.array([[[min_x, min_y]]]), matriz_de_rotacao)[0][0]
 
+    # Retornar a imagem rotacionada e as novas coordenadas
     return imagem_rotacionada, int(novo_min_x), int(novo_min_y)
 
 def redimensionarImagem(img):
@@ -57,6 +64,7 @@ def redimensionarImagem(img):
     return img_redimensionada
 
 def cortarGabarito(img_path):
+    # Carregar a imagem e converter para tons de cinza
     img = cv2.imread(img_path)
     img = redimensionarImagem(img)
     img_cinza = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -67,9 +75,11 @@ def cortarGabarito(img_path):
                41:None,42:None,43:None,44:None,45:None,46:None,47:None,48:None,49:None,50:None,}
     alternativas=['A','B','C','D','E']
 
+    # Aplicar filtro de limiarização
     img_cinza_tresh = cv2.threshold(img_cinza, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     cantos=[None,None]
 
+    # Encontrar contornos e filtrar por tamanho
     contornos, _ = cv2.findContours(img_cinza_tresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     area_minima, area_maxima = 50, 200
     contornos_fitrados = [cnt for cnt in contornos if area_minima < cv2.contourArea(cnt) < area_maxima]
@@ -77,6 +87,7 @@ def cortarGabarito(img_path):
     max_y,max_x = 0,0
     min_y, min_x = float('inf'),float('inf')
 
+    # Função para dividir a região da bolha em sub-regiões
     def dividirEmSubRegioes(roi):
         altura, largura = roi.shape
         altura_da_sub_regiao = altura // 2
@@ -88,6 +99,7 @@ def cortarGabarito(img_path):
             roi[altura_da_sub_regiao:, largura_da_sub_regiao:]
         ]
 
+    # Analisar cada contorno (bolha)
     for cnt in contornos_fitrados:
         x, y, largura, altura = cv2.boundingRect(cnt)
         roi = img_cinza_tresh[y:y+altura, x:x+largura]
@@ -95,11 +107,13 @@ def cortarGabarito(img_path):
 
         proporcoes = [cv2.countNonZero(sub_reg) / (sub_reg.shape[0] * sub_reg.shape[1]) for sub_reg in sub_regioes]
 
+        # Se a proporção máxima for maior que um determinado limiar, considerar a bolha como preenchida
         if np.max(proporcoes) > 0.7:
             if y < min_y and x < min_x:
                 cantos[0]=cnt
             elif y < min_y and x < max_x:
                 cantos[1]=cnt
+            #cv2.rectangle(img,(x,y),(x+10,y+10),(0,255,0), thickness=2)
 
             max_y = max(max_y,y)
             min_y = min(min_y,y)
@@ -109,6 +123,7 @@ def cortarGabarito(img_path):
     angulo=calcularAngulo(cantos)*-1
     img,min_x,min_y=rotacionarImagem(img,cantos[1],angulo)
 
+    #cv2.rectangle(img,(min_x,min_y),(min_x+10,min_y+10),(255,0,0), thickness=2)
 
     if min_x < max_x and min_y < max_y:
         img = img[min_y+20:min_y+480,min_x+20:min_x+580]
@@ -127,6 +142,7 @@ def cortarGabarito(img_path):
 
         proporcoes = [cv2.countNonZero(sub_reg) / (sub_reg.shape[0] * sub_reg.shape[1]) for sub_reg in sub_regioes]
 
+        # Se a proporção máxima for maior que um determinado limiar, considerar a bolha como preenchida
         if np.max(proporcoes) > 0.3:
             cv2.rectangle(img,(x,y),(x+largura,y+altura),(255,255,0),thickness=2)
             questao=1+(math.floor(x/tamanho_x))+(math.floor(y/tamanho_y)*15)
@@ -134,6 +150,7 @@ def cortarGabarito(img_path):
 
             cv2.putText(img,f'{alternativas[alternativa-1]}',(x,y-5),cv2.FONT_HERSHEY_COMPLEX,.5,(255,0,0),thickness=1)
             respostas[questao]=alternativas[alternativa-1]
+            #Formular para descobrir a questão 1+(math.floor(x/tamx))+(math.floor(y/tamy)*15)
     return img, respostas
 def mostratImagem(img, Name='imagem'):
     plt.imshow(img)
