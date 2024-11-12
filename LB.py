@@ -42,10 +42,16 @@ def rotate(img, Canto, angle, rotPoint=None):
     # Retornar a imagem rotacionada e as novas coordenadas
     return rotated_img, int(new_min_x), int(new_min_y)
 
-
+def resize(img):
+    x,y = img.shape[:2]
+    proporcao = y/x
+    largura = int(953*proporcao)
+    redimencionado = cv2.resize(img,(largura,953),interpolation=cv2.INTER_LINEAR)
+    return redimencionado
 def CortarGabarito(img_path):
     # Carregar a imagem e converter para tons de cinza
     img = cv2.imread(img_path)
+    img = resize(img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     Respostas={1:None,2:None,3:None,4:None,5:None,6:None,7:None,8:None,9:None,10:None,
                11:None,12:None,13:None,14:None,15:None,16:None,17:None,18:None,19:None,20:None,
