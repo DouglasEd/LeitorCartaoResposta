@@ -1,8 +1,22 @@
 import cv2
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+
+def LerPasta():
+    if os.path.isdir('Imagens'):
+        extensoes = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.webp', '.ppm', '.pgm', '.pbm', '.ras', '.sr', '.exr']
+        arquivos = os.listdir('Imagens')
+        arquivosComp=[]
+        for arquivo in arquivos:
+             for ext in extensoes:
+                if os.path.isfile(os.path.join('Imagens', arquivo)) and arquivo.lower().endswith(ext):
+                    arquivosComp.append(arquivo)
+        return arquivosComp
+    else:
+        print("A pasta 'Imagens' não existe.")
 def CalcAng(Bordas):
     x1,y1= cv2.boundingRect(Bordas[0])[:2]
     x2,y2= cv2.boundingRect(Bordas[1])[:2]
@@ -118,7 +132,6 @@ def CortarGabarito(img_path):
     min_area, max_area = 50, 200
     filtered_contours = [cnt for cnt in contours if min_area < cv2.contourArea(cnt) < max_area]
     tamx,tamy=(round(img.shape[1]/15),round(img.shape[0]/4))
-    print(f'{tamx} {tamy}')
     for cnt in filtered_contours:
         x, y, w, h = cv2.boundingRect(cnt)
         roi = thresh[y:y+h, x:x+w]
@@ -135,12 +148,6 @@ def CortarGabarito(img_path):
             cv2.putText(img,f'{Alts[alt-1]}',(x,y-5),cv2.FONT_HERSHEY_COMPLEX,.5,(255,0,0),thickness=1)
             Respostas[quest]=Alts[alt-1]
             #Formular para descobrir a questão 1+(math.floor(x/tamx))+(math.floor(y/tamy)*15)
-    '''x1,y1=(img.shape[1],img.shape[0])
-    print(f'{x1} {y1}')
-    for i in range(0,15):
-        for j in range(0,4):
-            cv2.rectangle(img,(tamx*i,tamy*j),(tamx*(i+1),tamy*(j+1)),(255,0,0),thickness=2)
-            cv2.rectangle(img,(tamx*i,tamy*j),(tamx*(i+1),tamy*j+30),(255,255,0),thickness=2)'''
     return img, Respostas
 def ShowImg(img, Name='imagem'):
     plt.imshow(img)
