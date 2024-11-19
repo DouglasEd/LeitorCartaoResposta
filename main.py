@@ -9,6 +9,8 @@ with open(nome_do_arquivo, "w") as arquivo:
         entrada = ''
         img, respostas = source.cortarGabarito(f'Imagens/{imagem}')
 
+        #source.mostrarImagem(img)
+        
         entrada = ' '.join(respostas[alternativa] for alternativa in range(1, 51))
 
         acertos = source.compararRespostas(respostas)
