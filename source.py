@@ -159,7 +159,7 @@ def compararRespostas(Respostas):
                 31: 'A', 32: 'D', 33: 'D', 34: 'B', 35: 'C', 36: 'D', 37: 'B', 38: 'D', 39: 'D', 40: 'D', 
                 41: 'D', 42: 'E', 43: 'C', 44: 'A', 45: 'D', 46: 'B', 47: 'C', 48: 'A', 49: 'D', 50: 'E' 
             }
-    for i in range(1,16):
+    for i in range(1,51):
         if Respostas[i] == gabarito[i]:
             acertos+=1
     return acertos
