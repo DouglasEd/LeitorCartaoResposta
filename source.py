@@ -138,7 +138,7 @@ def cortarGabarito(img_path):
             else:
                 respostas[questao]='Anulada'
     return img, respostas
-def mostratImagem(img, Name='imagem'):
+def mostrarImagem(img, Name='imagem'):
     plt.imshow(img)
     plt.show()
 
