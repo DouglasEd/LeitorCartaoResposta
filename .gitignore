@@ -59,3 +59,6 @@ htmlcov/
 .pyright/
 ruff_cache/
 __pypackages__/
+
+#Arquivos Salvos
+*.txt

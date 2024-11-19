@@ -133,7 +133,10 @@ def cortarGabarito(img_path):
             alternativa=int((y-(tamanho_y*(math.floor(y/tamanho_y))))/((tamanho_y-30)/5))
 
             cv2.putText(img,f'{alternativas[alternativa-1]}',(x,y-5),cv2.FONT_HERSHEY_COMPLEX,.5,(255,0,0),thickness=1)
-            respostas[questao]=alternativas[alternativa-1]
+            if respostas[questao] == None:
+                respostas[questao]=alternativas[alternativa-1]
+            else:
+                respostas[questao]='Anulada'
     return img, respostas
 def mostratImagem(img, Name='imagem'):
     plt.imshow(img)
